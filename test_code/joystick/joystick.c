@@ -1,9 +1,3 @@
-#define _GNU_SOURCE
-#define DEV_INPUT_EVENT "/dev/input"
-#define EVENT_DEV_NAME "event"
-#define DEV_FB "/dev"
-#define FB_DEV_NAME "fb"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -19,12 +13,26 @@
 #include <linux/input.h>
 #include <linux/fb.h>
 
+#define _GNU_SOURCE
+#define DEV_INPUT_EVENT "/dev/input"
+#define EVENT_DEV_NAME "event"
+#define DEV_FB "/dev"
+#define FB_DEV_NAME "fb"
+
+/**
+ * is_event_device:
+ *      Check if the event is a device like the joystick
+ */
 static int is_event_device(const struct dirent *dir)
 {
 	return strncmp(EVENT_DEV_NAME, dir->d_name,
 		       strlen(EVENT_DEV_NAME)-1) == 0;
 }
 
+/**
+ * change_dir:
+ *      Change direction from entered key
+ */
 void change_dir(unsigned int code)
 {
     switch (code) {
@@ -46,6 +54,10 @@ void change_dir(unsigned int code)
     }
 }
 
+/**
+ * open_evdev:
+ *      Opens the event device with the dev_name
+ */
 static int open_evdev(const char *dev_name)
 {
     struct dirent **namelist;
@@ -76,7 +88,10 @@ static int open_evdev(const char *dev_name)
         free(namelist[i]);
     return fd;
 }
-
+/**
+ * handle_events:
+ *      function for handeling events from the joystick 
+ */
 void handle_events(int evfd)
 {
     struct input_event ev[64];
@@ -91,17 +106,25 @@ void handle_events(int evfd)
 }
 
 int main()
-{
+{   
+    /**
+     * create eventpoller 
+     */
     struct pollfd evpoll = {
 		.events = POLLIN,
 	};
 
+    /**
+     * open event device
+     */
 	evpoll.fd = open_evdev("Raspberry Pi Sense HAT Joystick");
 	if (evpoll.fd < 0) {
 		fprintf(stderr, "Event device not found.\n");
 		return evpoll.fd;
 	}
-
+    /**
+     * Poll tot de max
+     */
     while(1){
         while (poll(&evpoll, 1, 0) > 0)
             handle_events(evpoll.fd);
