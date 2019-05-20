@@ -1,17 +1,3 @@
-/*
- *  C code to read pressure and temperature from the
- *  Raspberry Pi Sense HAT add-on board (LPS25H sensor)
- *  
- *  sudo raspi-config --> advanced options --> enable i2c
- *
- *  sudo apt-get install libi2c-dev i2c-tools
- *
- *  Then build with:
- *
- *       gcc -Wall pressure.c -o pressure
- *
- */
-
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>

@@ -55,7 +55,7 @@ int main(void)
     while(1)
     {
     	get_temp_humidity();
-	usleep(1000000);
+        usleep(1000000);
     }
     return 0;
 }
@@ -73,22 +73,22 @@ void get_temp_humidity()
 
     /* open i2c comms */
     if ((fd = open(DEV_PATH, O_RDWR)) < 0) {
-	perror("Unable to open i2c device");
-	exit(1);
+        perror("Unable to open i2c device");
+        exit(1);
     }
 
     /* configure i2c slave */
     if (ioctl(fd, I2C_SLAVE, DEV_ID) < 0) {
-	perror("Unable to configure i2c slave device");
-	close(fd);
-	exit(1);
+        perror("Unable to configure i2c slave device");
+        close(fd);
+        exit(1);
     }
 
     /* check we are who we should be */
     if (i2c_smbus_read_byte_data(fd, WHO_AM_I) != 0xBC) {
-	printf("%s\n", "who_am_i error");
-	close(fd);
-	exit(1);
+        printf("%s\n", "who_am_i error");
+        close(fd);
+        exit(1);
     }
 
     /* Power down the device (clean start) */
@@ -103,8 +103,8 @@ void get_temp_humidity()
 
     /* Wait until the measurement is completed */
     do {
-	delay(25);		/* 25 milliseconds */
-	status = i2c_smbus_read_byte_data(fd, CTRL_REG2);
+        delay(25);		/* 25 milliseconds */
+        status = i2c_smbus_read_byte_data(fd, CTRL_REG2);
     }
     while (status != 0);
 
