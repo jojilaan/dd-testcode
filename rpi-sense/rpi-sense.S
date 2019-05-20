@@ -1,34 +1,3 @@
-/*
- * rpi-sense.S - Atmel assembly routines for LED framebuffer scan-out
- *
- * Copyright (c) 2015 Raspberry Pi Foundation
- *
- * Author: Serge Schneider <serge@raspberrypi.org>
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *	* Redistributions of source code must retain the above copyright
- *	  notice, this list of conditions and the following disclaimer.
- *	* Redistributions in binary form must reproduce the above copyright
- *	  notice, this list of conditions and the following disclaimer in the
- *	  documentation and/or other materials provided with the distribution.
- *	* Neither the name of Raspberry Pi nor the
- *	  names of its contributors may be used to endorse or promote products
- *	  derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 #include <avr/io.h>
 #include <util/twi.h>
 
@@ -54,42 +23,42 @@ I2C_OFF	= 26	; XL
 .equiv LED_CLKR	, PC1
 .equiv LED_LE	, PC2
 .equiv LED_SDI	, PC3
-.equiv SDA	, PC4
-.equiv SCL	, PC5
+.equiv SDA		, PC4
+.equiv SCL		, PC5
 .equiv LED_OE_N	, PC7
 
 .macro CLOCK_OUT
-	SBI	_SFR_IO_ADDR(PORTC), LED_CLKR
-	CBI	_SFR_IO_ADDR(PORTC), LED_CLKR
+	SBI	_SFR_IO_ADDR(PORTC), LED_CLKR	; SET BIT
+	CBI	_SFR_IO_ADDR(PORTC), LED_CLKR	; CLEAR BIT
 .endm
 
-.macro COL_OUT reg
-	CP	PWM, \reg
-	BRSH	lclear\reg
-	SBI	_SFR_IO_ADDR(PORTC), LED_SDI
-	RJMP	ldone\reg
+.macro COL_OUT reg 						; send color out to serial digital input
+	CP	PWM, \reg 						; copy register to PWM
+	BRSH	lclear\reg					; branch if same or higher to lclear with reg
+	SBI	_SFR_IO_ADDR(PORTC), LED_SDI	; set bit PORTC with LED_SDI
+	RJMP	ldone\reg					; relative jump to ldone with reg
 lclear\reg:
-	CBI	_SFR_IO_ADDR(PORTC), LED_SDI
+	CBI	_SFR_IO_ADDR(PORTC), LED_SDI	; clear bit PORTC LED_SDI
 ldone\reg:
-	CLOCK_OUT
+	CLOCK_OUT							; macro CLOCK_OUT
 .endm
 
-.global draw_loop
-.global delay
-.global read_data
-.global write_data
-.global TWI_vect
+.global draw_loop						; function declaration of drawloop
+.global delay							; function declaration of delay
+.global read_data						; function declaration of readdata
+.global write_data						; function declaration of write data
+.global TWI_vect						; function declaration of TWI_vect
 
-.extern pixels
-.extern id
-.extern key
-.extern i2c_reg
+.extern pixels							; ??
+.extern id								; ??
+.extern key								; ??
+.extern i2c_reg							; I2C register
 
 .section .text
-.func draw_loop
-draw_loop:
+.func draw_loop							; function draw_loop
+draw_loop:								; begin draw_loop function
 Lframe_loop:
-	CBI	_SFR_IO_ADDR(PORTC), FRAME_INT
+	CBI	_SFR_IO_ADDR(PORTC), FRAME_INT	; clear bit PORTC, FRAME_INT
 	LDI	YL, lo8(pixels)
 	LDI	YH, hi8(pixels)
 	LDI	LINE, 0xFE
