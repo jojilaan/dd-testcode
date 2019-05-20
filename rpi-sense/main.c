@@ -72,6 +72,35 @@ typedef enum {
 } le_key;
 
 volatile uint8_t pixels[] = {
+	0x1F, 0x1F, 0x1F, 0x1F, 0x14, 0x03, 0x00, 0x00
+};
+
+volatile char keys;
+volatile char i2c_reg = 0xff;
+
+int main(void)
+{
+	PORTA = 0;
+	PORTB = 1;
+	PORTC = 0;
+	PORTD = 0xFF;
+	DDRB = EE_WP | FRAME_INT | KEYS_INT;
+	DDRC = LED_SDI | LED_CLKR | LED_LE | LED_OE_N;
+	DDRD = 0xFF;
+
+	TCCR0A = (1<<CS12);
+	TWBR = 0xff;
+	TWAR = 0x46 << 1;
+	TWCR = (1 << TWEA) | (1 << TWEN) | (1 << TWINT) | (1 << TWIE);
+	//clear_gain();
+	sei();
+	draw_loop();
+	for(;;);
+}
+
+
+/*
+volatile uint8_t pixels[] = {
 	0x1F, 0x1F, 0x1F, 0x1F, 0x14, 0x03, 0x00, 0x00,
 	0x00, 0x00, 0x03, 0x12, 0x1F, 0x1F, 0x1F, 0x1F,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07,
@@ -105,25 +134,4 @@ volatile uint8_t pixels[] = {
 	0x0F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x0F, 0x02,
 };
 
-volatile char keys;
-volatile char i2c_reg = 0xff;
-
-int main(void)
-{
-	PORTA = 0;
-	PORTB = 1;
-	PORTC = 0;
-	PORTD = 0xFF;
-	DDRB = EE_WP | FRAME_INT | KEYS_INT;
-	DDRC = LED_SDI | LED_CLKR | LED_LE | LED_OE_N;
-	DDRD = 0xFF;
-
-	TCCR0A = (1<<CS12);
-	TWBR = 0xff;
-	TWAR = 0x46 << 1;
-	TWCR = (1 << TWEA) | (1 << TWEN) | (1 << TWINT) | (1 << TWIE);
-	//clear_gain();
-	sei();
-	draw_loop();
-	for(;;);
-}
+*/
