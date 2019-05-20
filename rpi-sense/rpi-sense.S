@@ -201,7 +201,7 @@ lloop:
 ; r24 TYPE
 write_data:
 	PUSH	r18
-	PUSH	r20
+	;PUSH	r20
 	PUSH	r21
 	PUSH	r22
 	PUSH	r23
@@ -242,7 +242,7 @@ write_data:
 read_data:
 	PUSH	r18
 	PUSH	r19
-	PUSH	r20
+	;PUSH	r20
 	PUSH	r21
 	PUSH	r22
 	PUSH	r23
