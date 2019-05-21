@@ -152,50 +152,50 @@ lframeend:
 
 .func delay
 delay:
-	PUSH	r19
-	PUSH	r20
-	IN	r20, _SFR_IO_ADDR(TCNT0)	; start = TCNT0;
+	PUSH	r19							;
+	PUSH	r20							;
+	IN	r20, _SFR_IO_ADDR(TCNT0)		; start = TCNT0;
 lloop:
-	IN	r19, _SFR_IO_ADDR(TCNT0)	; do {
-	SUB	r19, r20			; diff = TCNT0 - start;
-	CP	r19, LINE			; } while (diff < ticks);
-	BRLO	lloop
-	POP	r20
-	POP	r19
-	RET
+	IN	r19, _SFR_IO_ADDR(TCNT0)		; do {
+	SUB	r19, r20						; 	diff = TCNT0 - start;
+	CP	r19, LINE						; } while (diff < ticks);
+	BRLO	lloop						;
+	POP	r20								;
+	POP	r19								;
+	RET									;
  .endfunc
 
 .func write_data
 ; r20-23 DATA
 ; r24 TYPE
 write_data:
-	PUSH	r18
-	;PUSH	r20
-	PUSH	r21
-	PUSH	r22
-	PUSH	r23
-	PUSH	r24
-	LDI	r18, 24	;
-1:						; do {
-	SBRS	r23, 0				; 	if (data&1)
-	RJMP	2f
+	PUSH	r18							;
+	;PUSH	r20							;
+	PUSH	r21							;
+	PUSH	r22							;
+	PUSH	r23							;
+	PUSH	r24							;
+	LDI	r18, 24							;
+1:										; do {
+	SBRS	r23, 0						; 	if (data&1)
+	RJMP	2f							;
 	SBI	_SFR_IO_ADDR(PORTC), LED_SDI	; 		set LED_SDI;
 	RJMP	3f
-2:						; 	else
+2:										; 	else
 	CBI	_SFR_IO_ADDR(PORTC), LED_SDI	;		clr LED_SDI;
 3:
-	ASR	r23				; 	data <<= 1;
-	ROR	r22
-	ROR	r21
-	;ROR	r20								; Don't need?
-	CP	r24, r18			; 	if (type == i)
+	ASR	r23								; 	data <<= 1;
+	ROR	r22								;
+	ROR	r21								;
+	;ROR	r20							; Don't need?
+	CP	r24, r18						; 	if (type == i)
 	BRNE	4f
-	SBI	_SFR_IO_ADDR(PORTC), LED_LE	; 		set LED_LE;
+	SBI	_SFR_IO_ADDR(PORTC), LED_LE		; 		set LED_LE;
 4:
 	CLOCK_OUT
-	DEC	r18				; 	i--;
-	BRNE	1b				; } while (i!=0);
-	CBI	_SFR_IO_ADDR(PORTC), LED_LE	; 		clr LED_LE
+	DEC	r18								; 	i--;
+	BRNE	1b							; } while (i!=0);
+	CBI	_SFR_IO_ADDR(PORTC), LED_LE		; 		clr LED_LE
 	POP	r24
 	POP	r23
 	POP	r22
