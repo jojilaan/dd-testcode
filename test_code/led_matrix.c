@@ -62,7 +62,7 @@ int main(void)
     /* clear the led matrix */
     memset(map, 0, FILESIZE);
 
-    /* light it up! */
+    /* light up everything in a row, going from 0 -> 63 */
     for (i = 0; i < NUM_WORDS; i++) {
         *(p + i) = RGB565_RED;
         delay(25);

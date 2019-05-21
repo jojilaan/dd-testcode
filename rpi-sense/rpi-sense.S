@@ -1,34 +1,3 @@
-/*
- * rpi-sense.S - Atmel assembly routines for LED framebuffer scan-out
- *
- * Copyright (c) 2015 Raspberry Pi Foundation
- *
- * Author: Serge Schneider <serge@raspberrypi.org>
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *	* Redistributions of source code must retain the above copyright
- *	  notice, this list of conditions and the following disclaimer.
- *	* Redistributions in binary form must reproduce the above copyright
- *	  notice, this list of conditions and the following disclaimer in the
- *	  documentation and/or other materials provided with the distribution.
- *	* Neither the name of Raspberry Pi nor the
- *	  names of its contributors may be used to endorse or promote products
- *	  derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 #include <avr/io.h>
 #include <util/twi.h>
 
@@ -54,131 +23,131 @@ I2C_OFF	= 26	; XL
 .equiv LED_CLKR	, PC1
 .equiv LED_LE	, PC2
 .equiv LED_SDI	, PC3
-.equiv SDA	, PC4
-.equiv SCL	, PC5
+.equiv SDA		, PC4
+.equiv SCL		, PC5
 .equiv LED_OE_N	, PC7
 
 .macro CLOCK_OUT
-	SBI	_SFR_IO_ADDR(PORTC), LED_CLKR
-	CBI	_SFR_IO_ADDR(PORTC), LED_CLKR
+	SBI	_SFR_IO_ADDR(PORTC), LED_CLKR	; SET BIT
+	CBI	_SFR_IO_ADDR(PORTC), LED_CLKR	; CLEAR BIT
 .endm
 
-.macro COL_OUT reg
-	CP	PWM, \reg
-	BRSH	lclear\reg
-	SBI	_SFR_IO_ADDR(PORTC), LED_SDI
-	RJMP	ldone\reg
+.macro COL_OUT reg 						; send color out to serial digital input
+	CP	PWM, \reg 						; copy register to PWM
+	BRSH	lclear\reg					; branch if same or higher to lclear with reg
+	SBI	_SFR_IO_ADDR(PORTC), LED_SDI	; set bit PORTC with LED_SDI
+	RJMP	ldone\reg					; relative jump to ldone with reg
 lclear\reg:
-	CBI	_SFR_IO_ADDR(PORTC), LED_SDI
+	CBI	_SFR_IO_ADDR(PORTC), LED_SDI	; clear bit PORTC LED_SDI
 ldone\reg:
-	CLOCK_OUT
+	CLOCK_OUT							; macro CLOCK_OUT
 .endm
 
-.global draw_loop
-.global delay
-.global read_data
-.global write_data
-.global TWI_vect
+.global draw_loop						; function declaration of drawloop
+.global delay							; function declaration of delay
+.global read_data						; function declaration of readdata
+.global write_data						; function declaration of write data
+.global TWI_vect						; function declaration of TWI_vect
 
-.extern pixels
-.extern id
-.extern key
-.extern i2c_reg
+.extern pixels							; ??
+.extern id								; ??
+.extern key								; ??
+.extern i2c_reg							; I2C register
 
 .section .text
-.func draw_loop
-draw_loop:
+.func draw_loop							; function draw_loop
+draw_loop:								; begin draw_loop function
 Lframe_loop:
-	CBI	_SFR_IO_ADDR(PORTC), FRAME_INT
-	LDI	YL, lo8(pixels)
-	LDI	YH, hi8(pixels)
-	LDI	LINE, 0xFE
+	CBI	_SFR_IO_ADDR(PORTC), FRAME_INT	; clear bit PORTC, FRAME_INT
+	LDI	YL, lo8(pixels)					; Push pixel value to YL
+	LDI	YH, hi8(pixels)					; Push pixel value to YH
+	LDI	LINE, 0xFE						; Load immediate 0xFE to line
 Lline_loop:
-	OUT	_SFR_IO_ADDR(PORTD), LINE
-	LDI	PWM, 0
-	LD	r0, Y+
-	LD	r1, Y+
-	LD	r2, Y+
-	LD	r3, Y+
-	LD	r4, Y+
-	LD	r5, Y+
-	LD	r6, Y+
-	LD	r7, Y+
-	LD	r8, Y+
-	LD	r9, Y+
-	LD	r10, Y+
-	LD	r11, Y+
-	LD	r12, Y+
-	LD	r13, Y+
-	LD	r14, Y+
-	LD	r15, Y+
-	LD	r16, Y+
-	LD	r17, Y+
-	LD	r18, Y+
-	LD	r19, Y+
-	LD	r20, Y+
-	LD	r21, Y+
-	LD	r22, Y+
-	LD	r23, Y+
+	OUT	_SFR_IO_ADDR(PORTD), LINE		; store register Line to PORTD
+	LDI	PWM, 0							; Load immediate 0 to PWM
+	LD	r0, Y+							; Y+ -> r0 (??)
+	LD	r1, Y+							; Y+ -> r0 (??)
+	LD	r2, Y+							; Y+ -> r0 (??)
+	LD	r3, Y+							; Y+ -> r0 (??)
+	LD	r4, Y+							; Y+ -> r0 (??)
+	LD	r5, Y+							; Y+ -> r0 (??)
+	LD	r6, Y+							; Y+ -> r0 (??)
+	LD	r7, Y+							; Y+ -> r0 (??)
+	LD	r8, Y+							; Y+ -> r0 (??)
+	LD	r9, Y+							; Y+ -> r0 (??)
+	LD	r10, Y+							; Y+ -> r0 (??)
+	LD	r11, Y+							; Y+ -> r0 (??)
+	LD	r12, Y+							; Y+ -> r0 (??)
+	LD	r13, Y+							; Y+ -> r0 (??)
+	LD	r14, Y+							; Y+ -> r0 (??)
+	LD	r15, Y+							; Y+ -> r0 (??)
+	LD	r16, Y+							; Y+ -> r0 (??)
+	LD	r17, Y+							; Y+ -> r0 (??)
+	LD	r18, Y+							; Y+ -> r0 (??)
+	LD	r19, Y+							; Y+ -> r0 (??)
+	LD	r20, Y+							; Y+ -> r0 (??)
+	LD	r21, Y+							; Y+ -> r0 (??)
+	LD	r22, Y+							; Y+ -> r0 (??)
+	LD	r23, Y+							; Y+ -> r0 (??)
 Lpwm_loop:
-	COL_OUT	r0
-	COL_OUT	r1
-	COL_OUT	r2
-	COL_OUT	r3
-	COL_OUT	r4
-	COL_OUT	r5
-	COL_OUT	r6
-	COL_OUT	r7
-	COL_OUT	r8
-	COL_OUT	r9
-	COL_OUT	r10
-	COL_OUT	r11
-	COL_OUT	r12
-	COL_OUT	r13
-	COL_OUT	r14
-	COL_OUT	r15
-	COL_OUT	r16
-	COL_OUT	r17
-	COL_OUT	r18
-	COL_OUT	r19
-	COL_OUT	r20
-	COL_OUT	r21
-	SBI	_SFR_IO_ADDR(PORTC), LED_LE
-	COL_OUT	r22
-	COL_OUT	r23
-	CBI	_SFR_IO_ADDR(PORTC), LED_LE
-	INC	PWM
-	SBRS	PWM, 6
-	RJMP	Lpwm_loop
-	ROL	LINE
-	BRCC	lframeend
-	INC	LINE
-	RJMP	Lline_loop
+	COL_OUT	r0							; use the COL_OUT macro for r0 register
+	COL_OUT	r1							; use the COL_OUT macro for r0 register
+	COL_OUT	r2							; use the COL_OUT macro for r0 register
+	COL_OUT	r3							; use the COL_OUT macro for r0 register
+	COL_OUT	r4							; use the COL_OUT macro for r0 register
+	COL_OUT	r5							; use the COL_OUT macro for r0 register
+	COL_OUT	r6							; use the COL_OUT macro for r0 register
+	COL_OUT	r7							; use the COL_OUT macro for r0 register
+	COL_OUT	r8							; use the COL_OUT macro for r0 register
+	COL_OUT	r9							; use the COL_OUT macro for r0 register
+	COL_OUT	r10							; use the COL_OUT macro for r0 register
+	COL_OUT	r11							; use the COL_OUT macro for r0 register
+	COL_OUT	r12							; use the COL_OUT macro for r0 register
+	COL_OUT	r13							; use the COL_OUT macro for r0 register
+	COL_OUT	r14							; use the COL_OUT macro for r0 register
+	COL_OUT	r15							; use the COL_OUT macro for r0 register
+	COL_OUT	r16							; use the COL_OUT macro for r0 register
+	COL_OUT	r17							; use the COL_OUT macro for r0 register
+	COL_OUT	r18							; use the COL_OUT macro for r0 register
+	COL_OUT	r19							; use the COL_OUT macro for r0 register
+	COL_OUT	r20							; use the COL_OUT macro for r0 register
+	COL_OUT	r21							; use the COL_OUT macro for r0 register
+	SBI	_SFR_IO_ADDR(PORTC), LED_LE		; Set bit PORTC LED_LE (LED LATCH ENABLE)
+	COL_OUT	r22							; use the COL_OUT macro for r0 register
+	COL_OUT	r23							; use the COL_OUT macro for r0 register
+	CBI	_SFR_IO_ADDR(PORTC), LED_LE		; Clear bit PORTC LED_LE (LED LATCH ENABLE)
+	INC	PWM								; Increment PWM by one (1)
+	SBRS	PWM, 6						; Skip next instruction if bit in PWM is 6
+	RJMP	Lpwm_loop					; Relative jump to Lpwm_loop
+	ROL	LINE							; Rotate left through carry with LINE
+	BRCC	lframeend					; branch if carry cleared and go to lframeend
+	INC	LINE							; Increment line by one (1)
+	RJMP	Lline_loop					; relative jump to Lline_loop
 lframeend:
-	SBI	_SFR_IO_ADDR(PORTB), FRAME_INT
-	CBI	_SFR_IO_ADDR(PORTD), 7		; Clear PORTD
-
-	SBI	_SFR_IO_ADDR(PORTB), LED_OE_N	; Scan
-	LDI	PARAM, 0xF8
-	OUT	_SFR_IO_ADDR(PORTD), PARAM
-	COM	PARAM
-	OUT	_SFR_IO_ADDR(DDRD), PARAM
-	LDS	PWM, keys
-	IN	PARAM, _SFR_IO_ADDR(PIND)
-	COM	PARAM
-	LSR	PARAM
-	LSR	PARAM
-	LSR	PARAM
-	STS	keys, PARAM
-	CPSE	PARAM, PWM
-	SBI     _SFR_IO_ADDR(PORTB), KEYS_INT
-	LDI	PARAM, 0xFF
-	OUT	_SFR_IO_ADDR(DDRD), PARAM
-	COM	PARAM
-	OUT	_SFR_IO_ADDR(PORTD), PARAM
-	CBI	_SFR_IO_ADDR(PORTB), LED_OE_N	; /Scan
-	RJMP	Lframe_loop
-	RET
+	SBI	_SFR_IO_ADDR(PORTB), FRAME_INT	; Set bit PORTB FRAME_INT
+	CBI	_SFR_IO_ADDR(PORTD), 7			; Clear PORTD
+	
+	SBI	_SFR_IO_ADDR(PORTB), LED_OE_N	; start Scan 
+	LDI	PARAM, 0xF8						; load immediate 0xF8 to PARAM
+	OUT	_SFR_IO_ADDR(PORTD), PARAM		; send PARAM to PORTD
+	COM	PARAM							; Get the compliment of param i.e. FF - value of PARAM
+	OUT	_SFR_IO_ADDR(DDRD), PARAM		; send PARAM to data direction register D (DDRD)
+	LDS	PWM, keys						; load keys directly from data space to PWM
+	IN	PARAM, _SFR_IO_ADDR(PIND)		; load an IO location to a register
+	COM	PARAM							; get the compliment of PARAM
+	LSR	PARAM							; logical shift right of PARAM
+	LSR	PARAM							; logical shift right of PARAM
+	LSR	PARAM							; logical shift right of PARAM
+	STS	keys, PARAM						; store PARAMS directly to data space keys
+	CPSE	PARAM, PWM					; Compare PWM with PARAM and skip next instruction if equal
+	SBI     _SFR_IO_ADDR(PORTB), KEYS_INT ; Set bit PORTB KEYS_INT
+	LDI	PARAM, 0xFF						; Load 0xFF to PARAM
+	OUT	_SFR_IO_ADDR(DDRD), PARAM		; send PARAM to data direction register D (DDRD) 
+	COM	PARAM							; Get compliment from PARAM (THANKS YOU!!)
+	OUT	_SFR_IO_ADDR(PORTD), PARAM		; send PARAM TO PORTB
+	CBI	_SFR_IO_ADDR(PORTB), LED_OE_N	; end Scan
+	RJMP	Lframe_loop					; relative jump to Lframe_loop
+	RET									; return
 .endfunc
 
 .func delay
