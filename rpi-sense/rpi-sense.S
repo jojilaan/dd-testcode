@@ -300,9 +300,9 @@ lrsreg:
 	STS	i2c_reg, PARAM			; Store data into data space: Loads contents of i2c_reg to PARAM -> C code: address = DATA
 	RJMP	lrdone				; Relative jump to lrdone loop
 lrspixel:
-	LDI	YL, lo8(pixels)			; 
-	LDI	YH, hi8(pixels)
-	ADD	YL, I2C_OFF
+	LDI	YL, lo8(pixels)			; Load low 8 bits to YLow register
+	LDI	YH, hi8(pixels)			; Load high 8 bits to YHigh register
+	ADD	YL, I2C_OFF			; Perform the ADD operation on YLow and I2C_OFF and store the result in YL
 	INC	I2C_OFF				; Increment I2C_OFF
 	STS	i2c_reg, I2C_OFF		; Store data into data space: Loads contents of i2c_reg to I2C_OFF
 	CLR	I2C_OFF				; Clear I2C_OFF register
