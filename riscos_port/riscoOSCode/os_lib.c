@@ -9,13 +9,17 @@ void set_register(_kernel_swi_regs *r, int reg_place, int reg_val);
 int main()
 {
 	_kernel_swi_regs r;
+	_kernel_swi_error *error;
 
 	printf("Set register...\n");
 	set_register(&r, 0, 0x0E);
 
-	if(!_kernel_swi(OS_READSYSINFO, &r, &r)){
-		printf("ERR: failed to call _kernel_swi\n");
+	error  = _kernel_swi(OS_READSYSINFO, &r, &r);
+	if (err != NULL) {
+		printf(“%s %x\n”, err→errmess, err→errnum);
+		exit(1);
 	}
+	printf("number of IIC Busses: %i", r[0]);
 }
 
 
