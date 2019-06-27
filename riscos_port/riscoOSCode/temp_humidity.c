@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
+#include "swis.h"
+#include "kernel.h"
 
 /**
  * OS_READSYSINFO to check OS system info
@@ -131,7 +130,7 @@ void get_temp_humidity() {
     while (status != 0);
 
     /**
-     * 4. make 13(!) calls to iic device
+     * 4. make 13(!) read values for the humidaty and temperature
      */
     uint8_t t0_out_l = iic_read_value(DEV_ID, T0_OUT_L);
     uint8_t t0_out_h = iic_read_value(DEV_ID, T0_OUT_H);
@@ -151,7 +150,7 @@ void get_temp_humidity() {
     uint8_t h1_rh_x2 = iic_read_value(DEV_ID, H1_rH_x2);
 
     /**
-     * 5. bitshift vairables and calculate the shit out of it
+     * 5. bitshift vairables and calculate the gradient and intercept
      */
     int16_t T0_OUT = t0_out_h << 8 | t0_out_l;
     int16_t T1_OUT = t1_out_h << 8 | t1_out_l;
@@ -175,27 +174,26 @@ void get_temp_humidity() {
     double h_intercept_c = H1_rH - (h_gradient_m * H1_T0_OUT);
 
     /**
-     * 6. make more iic calls
+     * 6. Make IIC call to get T_out
      */
     uint8_t t_out_l = iic_read_value(DEV_ID, TEMP_OUT_L);
     uint8_t t_out_h = iic_read_value(DEV_ID, TEMP_OUT_H);
 
-    /**
-     * 7. do some more bithshifting
-     */
+
     int16_t T_OUT = t_out_h << 8 | t_out_l;
 
     /**
-     * 8. make more iic calls
+     * 7. Make IIC call to get H_T_OUT
      */
     uint8_t h_t_out_l = iic_read_value(DEV_ID, H_T_OUT_L);
     uint8_t h_t_out_h = iic_read_value(DEV_ID, H_T_OUT_H);
 
-    /**
-     * 9. shift some more shit to other shit
-     */
+
     int16_t H_T_OUT = h_t_out_h << 8 | h_t_out_l;
 
+    /**
+     * 8. calculate the end result
+     */
     double T_DegC = (t_gradient_m * T_OUT) + t_intercept_c;
 
     double H_rH = (h_gradient_m * H_T_OUT) + h_intercept_c;
