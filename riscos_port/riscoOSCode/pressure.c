@@ -100,16 +100,6 @@ void do_meassurement(void) {
     double pressure = 0.0;
 
     uint8_t status = 0;
-	
-	//set iic_transfer registers
-	set_iic_transfer(IIC_READ, DEV_ID, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 16);
-	
-	printf("Set register...\n");
-	set_register(&r, 0, 0x0E);
-
-	if(!_kernel_swi(OS_READSYSINFO, &r, &r)){
-		printf("ERR: failed to call _kernel_swi\n");
-	}
 
 	/**
 	 * 3. check IIC device with WHO_AM_I
@@ -246,18 +236,31 @@ int data;
  * 		- return value
  * 		- by reference _kernel_swi_error
  */
-int iic_read_value(int dev_addr, int reg_addr, _kernel_swi_error *error) {
-	/**
-	 * 1. write address of the register you want to read from
-	 */
+int iic_read_value(int dev_addr, int reg_addr) {
+	iic_transfer write_addres, read_value;
+	iic_transfer transfer_packets[2];
+	iic_transfer_info transfer_info;
+	_kernel_swi_registers r;
+	int value;
 
-	/**
-	 * 2. once the iic address is set, read from the register
-	 */
+	// Set transfer registers
+	set_iic_transfer(&write_addres, WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
+	set_iic_transfer(&write_value, READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, null);
+	set_iic_transfer_info(&transfer_info, 2, 1);
+	
+	tranfer_packets[0] = write_address;
+	tranfer_packets[1] = read_value;
 
-	/**
-	 * 3. return the value of the iic call
-	 */
+	// set register for SWI kernel call
+	// TODO: set list of thinny to array of iic_transfer_packets
+	set_iic_registers(&r, transfer_packets, transfer_info);
+	error = _kernel_swi(OS_IICOP, &r, &r);
+	if (err != NULL) {
+		printf(“%s %x\n”, err→errmess, err→errnum);
+		exit(1);
+	}
+	value = r[0][1].d.data;
+	return value;
 }
 
 /**
@@ -269,10 +272,7 @@ int iic_read_value(int dev_addr, int reg_addr, _kernel_swi_error *error) {
  * 		- int value:	Value to write to the register
  * @output: return int success
  */
-void iic_write_value(int dev_addr, int reg_addr, int value, _kernel_swi_error *error) {
-	/**
-	 * 1. write address of the register you want to write to
-	 */
+void iic_write_value(int dev_addr, int reg_addr, int value) {
 	iic_transfer write_addres, write_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
@@ -290,7 +290,10 @@ void iic_write_value(int dev_addr, int reg_addr, int value, _kernel_swi_error *e
 	// TODO: set list of thinny to array of iic_transfer_packets
 	set_iic_registers(&r, transfer_packets, transfer_info);
 	error = _kernel_swi(OS_IICOP, &r, &r);
-
+	if (err != NULL) {
+		printf(“%s %x\n”, err→errmess, err→errnum);
+		exit(1);
+	}
 	return 1;
 }
 
