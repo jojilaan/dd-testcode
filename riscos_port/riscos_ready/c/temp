@@ -271,10 +271,9 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	transfer_packets[1] = read_value;
 
 	// set register for SWI kernel call
-	// TODO: set list of thinny to array of iic_transfer_packets
-	set_iic_registers(&r, &transfer_packets, &transfer_info);
+	set_iic_registers(&r, transfer_packets, &transfer_info);
     _kernel_swi(OS_IICOP, &r, &r);
-	value = r.r[0][1].d.data;
+	value = r.r[0].d.data;
 	return value;
 }
 
@@ -302,8 +301,7 @@ int iic_write_value(int dev_addr, int reg_addr, int value) {
 	transfer_packets[1] = write_value;
 
 	// set register for SWI kernel call
-	// TODO: set list of thinny to array of iic_transfer_packets
-	set_iic_registers(&r, &transfer_packets, &transfer_info);
+	set_iic_registers(&r, transfer_packets, &transfer_info);
     _kernel_swi(OS_IICOP, &r, &r);
     return 0;
 }
