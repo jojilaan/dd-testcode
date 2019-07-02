@@ -84,7 +84,7 @@ typedef struct iic_transfer_info
 
 
 void delay(int t);
-void get_temp_humidity(void);
+int get_temp_humidity(void);
 void set_register(_kernel_swi_regs *r, int reg_place, int reg_val); 			// set registers for SWI call
 void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len);								// 
 void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned int bus_num);
@@ -101,7 +101,7 @@ void delay(int t) {
     usleep(t * 1000);
 }
 
-void get_temp_humidity() {
+int get_temp_humidity(void) {
 
     int fd = 0;
     unsigned int status = 0;
@@ -262,7 +262,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
 
 	// Set transfer registers
 	set_iic_transfer(&write_addres, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
-	set_iic_transfer(&write_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, null);
+	set_iic_transfer(&write_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, NULL);
 	set_iic_transfer_info(&transfer_info, 2, 1);
 	
 	transfer_packets[0] = write_address;
