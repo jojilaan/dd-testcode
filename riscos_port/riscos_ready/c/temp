@@ -86,7 +86,7 @@ typedef struct iic_transfer_info
 void delay(int t);
 int get_temp_humidity(void);
 void set_register(_kernel_swi_regs *r, int reg_place, int reg_val); 			// set registers for SWI call
-void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len);								// 
+void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len, int data);								// 
 void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned int bus_num);
 void set_iic_registers(_kernel_swi_regs *r, iic_transfer t, iic_transfer_info t_i);
 int iic_read_value(int dev_addr, int reg_addr);				// IIC Read function
@@ -233,14 +233,16 @@ void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned i
  * @Output:
  * 		void
  */
-void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len) {
+void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len, int data) {
 	t->mode			= mode;
 	t->addr			= addr;
 	t->riscos_retry = retry;
 	t->checksumonly = sum;
 	t->nostart		= nostart;
 	t->len			= len;
-	t->d.data		= (void)data;
+    if(mode == IIC_WRITE) {
+        t->d.data		= (void)data;
+    }
 }
 
 /**
