@@ -31,8 +31,8 @@
 #define T0_OUT_H 0x3D
 #define T1_OUT_L 0x3E
 #define T1_OUT_H 0x3F
-#define T0_degC_x8 0x32
-#define T1_degC_x8 0x33
+#define T0_DEGC_X8 0x32
+#define T1_DEGC_X8 0x33
 #define T1_T0_MSB 0x35
 
 #define TEMP_OUT_L 0x2A
@@ -42,8 +42,8 @@
 #define H0_T0_OUT_H 0x37
 #define H1_T0_OUT_L 0x3A
 #define H1_T0_OUT_H 0x3B
-#define H0_rH_x2 0x30
-#define H1_rH_x2 0x31
+#define H0_RH_X2 0x30
+#define H1_RH_X2 0x31
 
 #define H_T_OUT_L 0x28
 #define H_T_OUT_H 0x29
@@ -138,8 +138,8 @@ void get_temp_humidity() {
     unsigned int t1_out_l = iic_read_value(DEV_ID, T1_OUT_L);
     unsigned int t1_out_h = iic_read_value(DEV_ID, T1_OUT_H);
 
-    unsigned int t0_degC_x8 = iic_read_value(DEV_ID, T0_degC_x8);
-    unsigned int t1_degC_x8 = iic_read_value(DEV_ID, 1_degC_x8);
+    unsigned int t0_degC_x8 = iic_read_value(DEV_ID, T0_DEGC_X8);
+    unsigned int t1_degC_x8 = iic_read_value(DEV_ID, T1_DEGC_X8);
     unsigned int t1_t0_msb = iic_read_value(DEV_ID, T1_T0_MSB);
 
     unsigned int h0_out_l = iic_read_value(DEV_ID, H0_T0_OUT_L);
@@ -147,8 +147,8 @@ void get_temp_humidity() {
     unsigned int h1_out_l = iic_read_value(DEV_ID, H1_T0_OUT_L);
     unsigned int h1_out_h = iic_read_value(DEV_ID, H1_T0_OUT_H);
 
-    unsigned int h0_rh_x2 = iic_read_value(DEV_ID, H0_rH_x2);
-    unsigned int h1_rh_x2 = iic_read_value(DEV_ID, H1_rH_x2);
+    unsigned int h0_rh_x2 = iic_read_value(DEV_ID, H0_RH_X2);
+    unsigned int h1_rh_x2 = iic_read_value(DEV_ID, H1_RH_X2);
 
     /**
      * 5. bitshift vairables and calculate the gradient and intercept
@@ -240,7 +240,7 @@ void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, i
 	t->checksumonly = sum;
 	t->nostart		= nostart;
 	t->len			= len;
-	t->d->data		= (void)data;
+	t->d.data		= (void)data;
 }
 
 /**
