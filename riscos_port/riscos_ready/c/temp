@@ -230,16 +230,7 @@ void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned i
  * @Output:
  * 		void
  */
-void set_iic_transfer(*t, mode, addr, retry, sum, nostart, len, data) 
-iic_transfer *t; 
-int mode;
-int addr;
-int retry; 
-int sum; 
-int nostart;
-int len;
-int data;
-{
+void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len) {
 	t->mode			= mode;
 	t->addr			= addr;
 	t->riscos_retry = retry;
@@ -263,16 +254,16 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	iic_transfer write_addres, read_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
-	_kernel_swi_registers r;
+	_kernel_swi_regs r;
 	int value;
 
 	// Set transfer registers
-	set_iic_transfer(&write_addres, WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
-	set_iic_transfer(&write_value, READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, null);
+	set_iic_transfer(&write_addres, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
+	set_iic_transfer(&write_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, null);
 	set_iic_transfer_info(&transfer_info, 2, 1);
 	
-	tranfer_packets[0] = write_address;
-	tranfer_packets[1] = read_value;
+	transfer_packets[0] = write_address;
+	transfer_packets[1] = read_value;
 
 	// set register for SWI kernel call
 	// TODO: set list of thinny to array of iic_transfer_packets
@@ -295,11 +286,11 @@ void iic_write_value(int dev_addr, int reg_addr, int value) {
 	iic_transfer write_addres, write_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
-	_kernel_swi_registers r;
+	_kernel_swi_regs r;
 
 	// Set transfer registers
-	set_iic_transfer(&write_addres, WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
-	set_iic_transfer(&write_value, WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, value);
+	set_iic_transfer(&write_addres, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
+	set_iic_transfer(&write_value, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, value);
 	set_iic_transfer_info(&transfer_info, 2, 1);
 	
 	tranfer_packets[0] = write_address;
