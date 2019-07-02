@@ -288,13 +288,13 @@ int iic_read_value(int dev_addr, int reg_addr) {
  * @output: return int success
  */
 int iic_write_value(int dev_addr, int reg_addr, int value) {
-	iic_transfer write_addres, write_value;
+	iic_transfer write_address, write_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
 	_kernel_swi_regs r;
 
 	// Set transfer registers
-	set_iic_transfer(&write_addres, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
+	set_iic_transfer(&write_address, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
 	set_iic_transfer(&write_value, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, value);
 	set_iic_transfer_info(&transfer_info, 2, 1);
 	
