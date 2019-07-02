@@ -6,6 +6,9 @@
 /**
  * OS_READSYSINFO to check OS system info
  */
+
+#define OS_IICOP			0x7B	// OS_IICOp	address
+
 #define IIC_READ			0x1		// IIC read
 #define IIC_WRITE			0x0		// IIC write
 #define IIC_RETRY_YES		0x1		// IIC risc os retry yes
