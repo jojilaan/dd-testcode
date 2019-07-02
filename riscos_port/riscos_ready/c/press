@@ -231,7 +231,6 @@ int data;
  * 		- int reg_addr: register address if the device to read from
  * @output: 
  * 		- return value
- * 		- by reference _kernel_swi_error
  */
 int iic_read_value(int dev_addr, int reg_addr) {
 	iic_transfer write_addres, read_value;
@@ -251,12 +250,9 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	// set register for SWI kernel call
 	// TODO: set list of thinny to array of iic_transfer_packets
 	set_iic_registers(&r, transfer_packets, transfer_info);
-	error = _kernel_swi(OS_IICOP, &r, &r);
-	if (err != NULL) {
-		printf(“%s %x\n”, err→errmess, err→errnum);
-		exit(1);
-	}
-	value = r[0][1].d.data;
+	kernel_swi(OS_IICOP, &r, &r);
+
+	value = r.r[0][1].d.data;
 	return value;
 }
 
@@ -286,11 +282,7 @@ void iic_write_value(int dev_addr, int reg_addr, int value) {
 	// set register for SWI kernel call
 	// TODO: set list of thinny to array of iic_transfer_packets
 	set_iic_registers(&r, transfer_packets, transfer_info);
-	error = _kernel_swi(OS_IICOP, &r, &r);
-	if (err != NULL) {
-		printf(“%s %x\n”, err→errmess, err→errnum);
-		exit(1);
-	}
+	_kernel_swi(OS_IICOP, &r, &r);
 	return 1;
 }
 
