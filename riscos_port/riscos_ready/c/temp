@@ -269,7 +269,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	// TODO: set list of thinny to array of iic_transfer_packets
 	set_iic_registers(&r, transfer_packets, transfer_info);
     _kernel_swi(OS_IICOP, &r, &r);
-	value = r[0][1].d.data;
+	value = r.r[0][1].d.data;
 	return value;
 }
 
