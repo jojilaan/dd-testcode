@@ -259,7 +259,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	iic_transfer write_address, read_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
-	_kernel_swi_regs r;
+	_kernel_swi_regs reg;
 	int value;
 
 	// Set transfer registers
@@ -272,8 +272,8 @@ int iic_read_value(int dev_addr, int reg_addr) {
 
 	// set register for SWI kernel call
 	set_iic_registers(&r, transfer_packets, &transfer_info);
-    _kernel_swi(OS_IICOP, &r, &r);
-	value = r.r[0].data;
+    _kernel_swi(OS_IICOP, &reg, &reg);
+	value = (int)reg.r[0][1].d.data;
 	return value;
 }
 
