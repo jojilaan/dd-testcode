@@ -211,7 +211,7 @@ int get_temp_humidity(void) {
     iic_write_value(DEV_ID, CTRL_REG1, POWER_DOWN);
 }
 
-void set_iic_registers(_kernel_swi_regs *r, iic_transfer t, iic_transfer_info t_i)  {
+void set_iic_registers(_kernel_swi_regs *r, iic_transfer *t, iic_transfer_info *t_i)  {
 	r->r[0] = &t;
 	r->r[1] = &t_i;
 }
@@ -298,8 +298,8 @@ int iic_write_value(int dev_addr, int reg_addr, int value) {
 	set_iic_transfer(&write_value, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, value);
 	set_iic_transfer_info(&transfer_info, 2, 1);
 	
-	tranfer_packets[0] = write_address;
-	tranfer_packets[1] = write_value;
+	transfer_packets[0] = write_address;
+	transfer_packets[1] = write_value;
 
 	// set register for SWI kernel call
 	// TODO: set list of thinny to array of iic_transfer_packets
