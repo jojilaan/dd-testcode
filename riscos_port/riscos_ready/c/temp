@@ -83,8 +83,7 @@ typedef struct iic_transfer_info
 void delay(int t);
 void get_temp_humidity(void);
 void set_register(_kernel_swi_regs *r, int reg_place, int reg_val); 			// set registers for SWI call
-void set_iic_transfer(iic_transfer *t, int mode, int addr, \					// set IIC Transferpacket
-		int retry, int sum, int nostart, int len);								// 
+void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len);								// 
 void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned int bus_num);
 void set_iic_registers(_kernel_swi_regs *r, iic_transfer t, iic_transfer_info t_i);
 int iic_read_value(int dev_addr, int reg_addr);				// IIC Read function
@@ -102,12 +101,12 @@ void delay(int t) {
 void get_temp_humidity() {
 
     int fd = 0;
-    uint8_t status = 0;
+    unsigned int status = 0;
 
     /**
      *  1. check IIC WHO_AM_I DEVICE
      */
-    if (iic_read_value(DEV_ID) != 0xBC) {
+    if (iic_read_value(DEV_ID, WHO_AM_I) != 0xBC) {
         printf("%s\n", "who_am_i error");
         close(fd);
         exit(1);
@@ -132,34 +131,34 @@ void get_temp_humidity() {
     /**
      * 4. make 13(!) read values for the humidaty and temperature
      */
-    uint8_t t0_out_l = iic_read_value(DEV_ID, T0_OUT_L);
-    uint8_t t0_out_h = iic_read_value(DEV_ID, T0_OUT_H);
-    uint8_t t1_out_l = iic_read_value(DEV_ID, T1_OUT_L);
-    uint8_t t1_out_h = iic_read_value(DEV_ID, T1_OUT_H);
+    unsigned int t0_out_l = iic_read_value(DEV_ID, T0_OUT_L);
+    unsigned int t0_out_h = iic_read_value(DEV_ID, T0_OUT_H);
+    unsigned int t1_out_l = iic_read_value(DEV_ID, T1_OUT_L);
+    unsigned int t1_out_h = iic_read_value(DEV_ID, T1_OUT_H);
 
-    uint8_t t0_degC_x8 = iic_read_value(DEV_ID, T0_degC_x8);
-    uint8_t t1_degC_x8 = iic_read_value(DEV_ID, 1_degC_x8);
-    uint8_t t1_t0_msb = iic_read_value(DEV_ID, T1_T0_MSB);
+    unsigned int t0_degC_x8 = iic_read_value(DEV_ID, T0_degC_x8);
+    unsigned int t1_degC_x8 = iic_read_value(DEV_ID, 1_degC_x8);
+    unsigned int t1_t0_msb = iic_read_value(DEV_ID, T1_T0_MSB);
 
-    uint8_t h0_out_l = iic_read_value(DEV_ID, H0_T0_OUT_L);
-    uint8_t h0_out_h = iic_read_value(DEV_ID, H0_T0_OUT_H);
-    uint8_t h1_out_l = iic_read_value(DEV_ID, H1_T0_OUT_L);
-    uint8_t h1_out_h = iic_read_value(DEV_ID, H1_T0_OUT_H);
+    unsigned int h0_out_l = iic_read_value(DEV_ID, H0_T0_OUT_L);
+    unsigned int h0_out_h = iic_read_value(DEV_ID, H0_T0_OUT_H);
+    unsigned int h1_out_l = iic_read_value(DEV_ID, H1_T0_OUT_L);
+    unsigned int h1_out_h = iic_read_value(DEV_ID, H1_T0_OUT_H);
 
-    uint8_t h0_rh_x2 = iic_read_value(DEV_ID, H0_rH_x2);
-    uint8_t h1_rh_x2 = iic_read_value(DEV_ID, H1_rH_x2);
+    unsigned int h0_rh_x2 = iic_read_value(DEV_ID, H0_rH_x2);
+    unsigned int h1_rh_x2 = iic_read_value(DEV_ID, H1_rH_x2);
 
     /**
      * 5. bitshift vairables and calculate the gradient and intercept
      */
-    int16_t T0_OUT = t0_out_h << 8 | t0_out_l;
-    int16_t T1_OUT = t1_out_h << 8 | t1_out_l;
+    int T0_OUT = t0_out_h << 8 | t0_out_l;
+    int T1_OUT = t1_out_h << 8 | t1_out_l;
 
-    int16_t H0_T0_OUT = h0_out_h << 8 | h0_out_l;
-    int16_t H1_T0_OUT = h1_out_h << 8 | h1_out_l;
+    int H0_T0_OUT = h0_out_h << 8 | h0_out_l;
+    int H1_T0_OUT = h1_out_h << 8 | h1_out_l;
 
-    uint16_t T0_DegC_x8 = (t1_t0_msb & 3) << 8 | t0_degC_x8;
-    uint16_t T1_DegC_x8 = ((t1_t0_msb & 12) >> 2) << 8 | t1_degC_x8;
+    int T0_DegC_x8 = (t1_t0_msb & 3) << 8 | t0_degC_x8;
+    int T1_DegC_x8 = ((t1_t0_msb & 12) >> 2) << 8 | t1_degC_x8;
 
     double T0_DegC = T0_DegC_x8 / 8.0;
     double T1_DegC = T1_DegC_x8 / 8.0;
@@ -176,20 +175,20 @@ void get_temp_humidity() {
     /**
      * 6. Make IIC call to get T_out
      */
-    uint8_t t_out_l = iic_read_value(DEV_ID, TEMP_OUT_L);
-    uint8_t t_out_h = iic_read_value(DEV_ID, TEMP_OUT_H);
+    unsigned int t_out_l = iic_read_value(DEV_ID, TEMP_OUT_L);
+    unsigned int t_out_h = iic_read_value(DEV_ID, TEMP_OUT_H);
 
 
-    int16_t T_OUT = t_out_h << 8 | t_out_l;
+    int T_OUT = t_out_h << 8 | t_out_l;
 
     /**
      * 7. Make IIC call to get H_T_OUT
      */
-    uint8_t h_t_out_l = iic_read_value(DEV_ID, H_T_OUT_L);
-    uint8_t h_t_out_h = iic_read_value(DEV_ID, H_T_OUT_H);
+    unsigned int h_t_out_l = iic_read_value(DEV_ID, H_T_OUT_L);
+    unsigned int h_t_out_h = iic_read_value(DEV_ID, H_T_OUT_H);
 
 
-    int16_t H_T_OUT = h_t_out_h << 8 | h_t_out_l;
+    int H_T_OUT = h_t_out_h << 8 | h_t_out_l;
 
     /**
      * 8. calculate the end result
