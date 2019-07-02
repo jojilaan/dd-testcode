@@ -88,7 +88,7 @@ int get_temp_humidity(void);
 void set_register(_kernel_swi_regs *r, int reg_place, int reg_val); 			// set registers for SWI call
 void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len, int data);								// 
 void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned int bus_num);
-void set_iic_registers(_kernel_swi_regs *r, iic_transfer t, iic_transfer_info t_i);
+void set_iic_registers(_kernel_swi_regs *r, iic_transfer *t, iic_transfer_info *t_i);
 int iic_read_value(int dev_addr, int reg_addr);				// IIC Read function
 int iic_write_value(int dev_addr, int reg_addr, int value);	// IIC Write function
 
@@ -211,7 +211,7 @@ int get_temp_humidity(void) {
     iic_write_value(DEV_ID, CTRL_REG1, POWER_DOWN);
 }
 
-void set_iic_registers(_kernel_swi_regs *r, iic_transfer *t, iic_transfer_info *t_i)  {
+void set_iic_registers(_kernel_swi_regs *r, iic_transfer *t, iic_transfer_info *t_i) {
 	r->r[0] = &t;
 	r->r[1] = &t_i;
 }
@@ -256,14 +256,14 @@ void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, i
  * 		- by reference _kernel_swi_error
  */
 int iic_read_value(int dev_addr, int reg_addr) {
-	iic_transfer write_addres, read_value;
+	iic_transfer write_address, read_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
 	_kernel_swi_regs r;
 	int value;
 
 	// Set transfer registers
-	set_iic_transfer(&write_addres, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
+	set_iic_transfer(&write_address, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
 	set_iic_transfer(&read_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, 0);
 	set_iic_transfer_info(&transfer_info, 2, 1);
 	
