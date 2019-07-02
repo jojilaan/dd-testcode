@@ -212,8 +212,8 @@ int get_temp_humidity(void) {
 }
 
 void set_iic_registers(_kernel_swi_regs *r, iic_transfer *t, iic_transfer_info *t_i) {
-	r->r[0] = t;
-	r->r[1] = t_i;
+	r->r[0] = (int)t;
+	r->r[1] = (int)t_i;
 }
 void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned int bus_num) {
 	t->amount_structures = amount;
@@ -241,7 +241,7 @@ void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, i
 	t->nostart		= nostart;
 	t->len			= len;
     if(mode == IIC_WRITE) {
-        t->d.data		= (void)data;
+        t->d.data		= (void *)data;
     }
 }
 
