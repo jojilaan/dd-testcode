@@ -19,7 +19,7 @@ int main()
 		printf("%s %x\n", error->errmess, error->errnum);
 		return 1;
 	}
-	printf("number of IIC Busses: %i", r[0]);
+	printf("number of IIC Busses: %i", r.r[0]);
 	return 0;
 }
 
