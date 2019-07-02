@@ -274,6 +274,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	set_iic_registers(&reg, transfer_packets, &transfer_info);
     _kernel_swi(OS_IICOP, &reg, &reg);
 	value = read_value.d.data;
+    printf("IIC read value: %i", value);
 	return value;
 }
 
