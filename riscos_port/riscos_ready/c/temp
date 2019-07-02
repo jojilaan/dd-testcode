@@ -262,7 +262,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
 
 	// Set transfer registers
 	set_iic_transfer(&write_addres, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
-	set_iic_transfer(&write_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, NULL);
+	set_iic_transfer(&read_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, NULL);
 	set_iic_transfer_info(&transfer_info, 2, 1);
 	
 	transfer_packets[0] = write_address;
