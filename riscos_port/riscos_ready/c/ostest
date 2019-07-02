@@ -17,9 +17,10 @@ int main()
 	error  = _kernel_swi(OS_READSYSINFO, &r, &r);
 	if (error != NULL) {
 		printf("%s %x\n", error->errmess, error->errnum);
-		exit(1);
+		return 1;
 	}
 	printf("number of IIC Busses: %i", r[0]);
+	return 0;
 }
 
 
