@@ -287,7 +287,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
  * 		- int value:	Value to write to the register
  * @output: return int success
  */
-void iic_write_value(int dev_addr, int reg_addr, int value) {
+int iic_write_value(int dev_addr, int reg_addr, int value) {
 	iic_transfer write_addres, write_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
@@ -305,6 +305,5 @@ void iic_write_value(int dev_addr, int reg_addr, int value) {
 	// TODO: set list of thinny to array of iic_transfer_packets
 	set_iic_registers(&r, transfer_packets, transfer_info);
     _kernel_swi(OS_IICOP, &r, &r);
-
-	return 1;
+    return 0;
 }
