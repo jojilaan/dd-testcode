@@ -108,8 +108,7 @@ void get_temp_humidity() {
      */
     if (iic_read_value(DEV_ID, WHO_AM_I) != 0xBC) {
         printf("%s\n", "who_am_i error");
-        close(fd);
-        exit(1);
+        return 0;
     }
     
     /**
