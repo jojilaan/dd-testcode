@@ -87,8 +87,8 @@ void set_iic_transfer(iic_transfer *t, int mode, int addr, \					// set IIC Tran
 		int retry, int sum, int nostart, int len);								// 
 void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned int bus_num);
 void set_iic_registers(_kernel_swi_regs *r, iic_transfer t, iic_transfer_info t_i);
-int iic_read_value(int dev_addr, int reg_addr, _kernel_swi_error *error);				// IIC Read function
-int iic_write_value(int dev_addr, int reg_addr, int value, _kernel_swi_error *error);	// IIC Write function
+int iic_read_value(int dev_addr, int reg_addr);				// IIC Read function
+int iic_write_value(int dev_addr, int reg_addr, int value);	// IIC Write function
 
 int main(void) {
     get_temp_humidity();
@@ -279,11 +279,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	// set register for SWI kernel call
 	// TODO: set list of thinny to array of iic_transfer_packets
 	set_iic_registers(&r, transfer_packets, transfer_info);
-	error = _kernel_swi(OS_IICOP, &r, &r);
-	if (err != NULL) {
-		printf(“%s %x\n”, err→errmess, err→errnum);
-		exit(1);
-	}
+    _kernel_swi(OS_IICOP, &r, &r);
 	value = r[0][1].d.data;
 	return value;
 }
@@ -314,10 +310,7 @@ void iic_write_value(int dev_addr, int reg_addr, int value) {
 	// set register for SWI kernel call
 	// TODO: set list of thinny to array of iic_transfer_packets
 	set_iic_registers(&r, transfer_packets, transfer_info);
-	error = _kernel_swi(OS_IICOP, &r, &r);
-	if (err != NULL) {
-		printf(“%s %x\n”, err→errmess, err→errnum);
-		exit(1);
-	}
+    _kernel_swi(OS_IICOP, &r, &r);
+
 	return 1;
 }
