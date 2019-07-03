@@ -259,6 +259,7 @@ int iic_read_value(int dev_addr, int reg_addr) {
 	iic_transfer write_address, read_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
+    _kernel_oserror *error; //for errors
 	_kernel_swi_regs reg;
 	int value = 0;
     
@@ -276,7 +277,10 @@ int iic_read_value(int dev_addr, int reg_addr) {
 
 	// set register for SWI kernel call
 	set_iic_registers(&reg, transfer_packets, &transfer_info);
-    _kernel_swi(OS_IICOP, &reg, &reg);
+    error = _kernel_swi(OS_IICOP, &reg, &reg);
+    if(error != NULL) {
+        printf("%s %x\n", error->errmess, error->errnum);
+    }
 	value = (int)read_value.d.data;
     printf("IIC read value: %X", value);
 	return value;
@@ -295,6 +299,7 @@ int iic_write_value(int dev_addr, int reg_addr, int value) {
 	iic_transfer write_address, write_value;
 	iic_transfer transfer_packets[2];
 	iic_transfer_info transfer_info;
+    _kernel_oserror *error; //for errors
 	_kernel_swi_regs r;
 
 	// Set transfer registers
@@ -307,6 +312,9 @@ int iic_write_value(int dev_addr, int reg_addr, int value) {
 
 	// set register for SWI kernel call
 	set_iic_registers(&r, transfer_packets, &transfer_info);
-    _kernel_swi(OS_IICOP, &r, &r);
+    error = _kernel_swi(OS_IICOP, &r, &r);
+    if(error != NULL) {
+        printf("%s %x\n", error->errmess, error->errnum);
+    }
     return 0;
 }
