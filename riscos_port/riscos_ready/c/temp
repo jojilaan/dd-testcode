@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include "swis.h"
 #include "kernel.h"
@@ -113,7 +114,8 @@ int get_temp_humidity(void) {
         printf("%s\n", "who_am_i error");
         return 0;
     }
-    
+    printf("WHO AM I READ");
+    return 0;
     /**
      * 2. write to control registers
      */
@@ -233,17 +235,17 @@ void set_iic_transfer_info(iic_transfer_info *t, unsigned int amount, unsigned i
  * @Output:
  * 		void
  */
-void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len, int data) {
-	t->mode			= mode;
-	t->addr			= addr;
-	t->riscos_retry = retry;
-	t->checksumonly = sum;
-	t->nostart		= nostart;
-	t->len			= len;
-    if(mode == IIC_WRITE) {
-        t->d.data		= (void *)data;
-    }
-}
+// void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, int nostart, int len, int *data) {
+// 	t->mode			= mode;
+// 	t->addr			= addr;
+// 	t->riscos_retry = retry;
+// 	t->checksumonly = sum;
+// 	t->nostart		= nostart;
+// 	t->len			= len;
+//     if(mode == IIC_WRITE) {
+//         t->d.data		= &data;
+//     }
+// }
 
 /**
  * iic_read function
@@ -256,34 +258,51 @@ void set_iic_transfer(iic_transfer *t, int mode, int addr, int retry, int sum, i
  * 		- by reference _kernel_swi_error
  */
 int iic_read_value(int dev_addr, int reg_addr) {
-	iic_transfer write_address, read_value;
-	iic_transfer transfer_packets[2];
-	iic_transfer_info transfer_info;
+	iic_transfer t[2];
+
     _kernel_oserror *error; //for errors
 	_kernel_swi_regs reg;
-	int value = 0;
-    
-    printf("dev_addr: %X \n", dev_addr);
-    printf("reg_addr: %X \n", reg_addr);
-    printf("value (before IIC call): %X", value);
+	int *value;
 
 	// Set transfer registers
-	set_iic_transfer(&write_address, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
-	set_iic_transfer(&read_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_YES, 2, 0);
-	set_iic_transfer_info(&transfer_info, 2, 1);
-	
-	transfer_packets[0] = write_address;
-	transfer_packets[1] = read_value;
+	// set_iic_transfer(&write_address, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
+	// set_iic_transfer(&read_value, IIC_READ, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_YES, 2, &value);
 
-	// set register for SWI kernel call
-	set_iic_registers(&reg, transfer_packets, &transfer_info);
+	// set_iic_transfer_info(&transfer_info, 2, 1);
+	
+	// transfer_packets[0] = write_address;
+	// transfer_packets[1] = read_value;
+
+	// // set register for SWI kernel call
+	// set_iic_registers(&reg, transfer_packets, &transfer_info);
+    t[0].mode = IIC_WRITE;
+    t[0].addr = dev_addr;
+    t[0].riscos_retry = 0;
+    t[0].checksumonly = 0;
+    t[0].nostart = 0;
+    t[0].d.data = &reg_addr;
+    t[0].len = 1;
+
+
+    t[1].mode = IIC_READ;
+    t[1].addr = dev_addr;
+    t[1].riscos_retry = 0;
+    t[1].checksumonly = 0;
+    t[1].nostart = 0;
+    t[1].d.data = value;
+    t[1].len = 2;
+
+
+    reg.r[0] = (int)&t;
+    reg.r[1] = 2;
+
     error = _kernel_swi(OS_IICOP, &reg, &reg);
     if(error != NULL) {
         printf("%s %x\n", error->errmess, error->errnum);
     }
-	value = (int)read_value.d.data;
+
     printf("IIC read value: %X", value);
-	return value;
+    return 0;
 }
 
 /**
@@ -296,22 +315,22 @@ int iic_read_value(int dev_addr, int reg_addr) {
  * @output: return int success
  */
 int iic_write_value(int dev_addr, int reg_addr, int value) {
-	iic_transfer write_address, write_value;
-	iic_transfer transfer_packets[2];
+	iic_transfer t[1] = {{0}};
 	iic_transfer_info transfer_info;
     _kernel_oserror *error; //for errors
 	_kernel_swi_regs r;
+    
+    unsigned char ucTemp[512];
+    ucTemp[0] = reg_addr;
+    memcpy(&ucTemp[1], &value, 1);
 
-	// Set transfer registers
-	set_iic_transfer(&write_address, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_NO, 2, reg_addr);
-	set_iic_transfer(&write_value, IIC_WRITE, dev_addr, IIC_RETRY_NO, IIC_CHECKSUM_NO, IIC_NOSTART_YES, 2, value);
-	set_iic_transfer_info(&transfer_info, 2, 1);
-	
-	transfer_packets[0] = write_address;
-	transfer_packets[1] = write_value;
+	// // Set transfer registers
+	// set_iic_transfer_info(&transfer_info, 2, 1);
 
-	// set register for SWI kernel call
-	set_iic_registers(&r, transfer_packets, &transfer_info);
+	// // set register for SWI kernel call
+	// set_iic_registers(&r, transfer_packet, &transfer_info);
+
+
     error = _kernel_swi(OS_IICOP, &r, &r);
     if(error != NULL) {
         printf("%s %x\n", error->errmess, error->errnum);

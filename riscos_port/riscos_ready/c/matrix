@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include "swis.h"
+#include "kernel.h"
+
+/**
+ * OS_READSYSINFO to check OS system info
+ */
+
+#define OS_IICOP			    0x7B	// OS_IICOp	address
+
+#define IIC_READ			    0x1		// IIC read
+#define IIC_WRITE			    0x0		// IIC write
+#define IIC_RETRY_YES		  0x1		// IIC risc os retry yes
+#define IIC_RETRY_NO		  0x0		// IIC risc OS retry no
+#define IIC_CHECKSUM_YES	0x1		// IIC checksum flag set
+#define IIC_CHECKSUM_NO		0x0		// IIC checksum flag not set
+#define IIC_NOSTART_YES		0x1		// IIC nostart flag set
+#define IIC_NOSTART_NO		0x0		// IIC nostart flag not set
+
+#define DEV_ADDR            0x46
+
+/**
+ * struct for IIC_transfers
+ */
+typedef struct iic_transfer
+{
+  unsigned mode:1;					// mode for IIC transfer
+  unsigned addr:7;					// address to read/write
+  unsigned :21;						  // 
+  unsigned riscos_retry:1;	// retry flag
+  unsigned checksumonly:1;	// checksum flag
+  unsigned nostart:1;				// no start flag
+  union
+  {   unsigned checksum;		// checksum
+      void *data;					  // pointer data
+  } d;
+  unsigned len;						  // length of data to send/receive in bytes
+} iic_transfer;
+
+int main() {
+    iic_transfer t;
+    _kernel_swi_regs in;
+    _kernel_oserror *error;
+    unsigned int buffer [ 193 ] = {0x0};
+    buffer[0] = 0; 
+
+    t.mode = IIC_WRITE;
+    t.addr = DEV_ADDR;
+    t.d.data = buffer;
+    t.riscos_retry = IIC_RETRY_NO;
+    t.checksumonly = IIC_CHECKSUM_NO;
+    t.nostart = IIC_NOSTART_NO;
+    t.len = 193;
+
+    in.r[0] = (int)&t;
+    in.r[1] = 1;
+
+    error = _kernel_swi(OS_IICOP, &in, &in);
+    if (error != NULL) {    
+        printf("ERROR: %s, with err code %X\n", error->errmess, error->errnum);
+        return 0;
+    }
+    printf("DONE!");
+    return 0;
+}
